@@ -1,0 +1,18 @@
+{
+  "name": "m3m3man",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/client": "^3.14.2",
+    "dotenv": "^4.0.0",
+    "lodash": "^4.17.4",
+    "moment": "^2.20.1",
+    "snoowrap": "^1.15.1"
+  }
+}
