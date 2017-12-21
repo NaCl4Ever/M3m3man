@@ -6,56 +6,74 @@ const env = require ('dotenv').config().parsed;
 const rtm = new RtmClient(env.Slack_key);
 const _ = require('lodash');
 const snoowrap =  require('snoowrap');
-console.dir(env);
-// const r = new snoowrap({
-//     userAgent: 'put your user-agent string here',
-//     clientId: 'put your client id here',
-//     clientSecret: 'put your client secret here',
-//     refreshToken: 'put your refresh token here'
-//   });
-let channel;
+const r = new snoowrap({
+    userAgent: env.userAgent,
+    clientId: env.clientId,
+    clientSecret: env.clientSecret,
+    refreshToken: env.refreshToken
+  });
+let channel = [];
 let bot;
 rtm.start();
 
 
+
 rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
     for (const c of rtmStartData.channels) {
-        if (c.is_member && c.name ==='example') { channel = c.id }
+        if (c.is_member) { channel.push(c.id); }
     }
     bot = '<@' + rtmStartData.self.id + '>';
+    console.dir(bot);
 });
 
+//Do something on opening the client
 rtm.on(CLIENT_EVENTS.RTM.RTM_CONNECTION_OPENED, function () {
-    rtm.sendMessage("Hello!", channel);
+    
 });
 
 rtm.on(RTM_EVENTS.MESSAGE, function(message) {
-    if (message.channel === channel)
-        console.log(message);
-});
-
-rtm.on(RTM_EVENTS.MESSAGE, function(message) {
-    if (message.channel === channel) {
-        if (!_.isEmpty(message.text)) {
+    if (channel.indexOf(message.channel) !== -1) {
+        console.dir(message);
+        if (!_.isEmpty(message.text) && bot.indexOf(message.user) === -1) {
             var pieces = message.text.split(' ');
-             
             if (pieces.length > 1) {
                 if (pieces[0] === bot) {
                     var response = '<@' + message.user + '>';
-                     
                     switch (pieces[1].toLowerCase()) {
-                        case "jump":
-                            response += '"Kris Kross will make you jump jump"';
-                            break;
                         case "help":
-                            response += ', currently I support the following commands: jump';
+                            response += ', currently I support the following commands: vidya, pic';
                             break;
+                        case "vidya":
+                            {
+                                r.getSubreddit('youtubehaiku')
+                                    .getTop({ time: 'week' })
+                                    .then((results) => {
+                                        console.log(results);
+                                        let selectedIndex = Math.floor(Math.random() * results.length)
+                                        rtm.sendMessage(results[selectedIndex].url, message.channel);
+                                    })
+                                    .catch(err => console.error(err));
+                            }
+                        break;
+                        case "pic":
+                            {
+                                r.getSubreddit('dankmemes')
+                                    .getTop({ time: 'week' })
+                                    .then((results) => {
+                                        console.log(results);
+                                        let selectedIndex = Math.floor(Math.random() * results.length)
+                                        rtm.sendMessage(results[selectedIndex].url, message.channel);
+                                    })
+                                    .catch(err => console.error(err));
+                            }
+                        break;
                         default:
                             response += ', sorry I do not understand the command "' + pieces[1] + '". For a list of supported commands, type: ' + bot + ' help';
+                            rtm.sendMessage(results[0].url, message.channel);
                             break;
                     }
                      
-                    rtm.sendMessage(response, message.channel);
+                   
                 }
             }
         }
