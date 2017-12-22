@@ -42,6 +42,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function(message) {
                     switch (pieces[1].toLowerCase()) {
                         case "help":
                             response += ', currently I support the following commands: vidya, pic';
+                            rtm.sendMessage(response, message.channel);
                             break;
                         case "vidya":
                             {
@@ -69,8 +70,8 @@ rtm.on(RTM_EVENTS.MESSAGE, function(message) {
                         break;
                         default:
                             response += ', sorry I do not understand the command "' + pieces[1] + '". For a list of supported commands, type: ' + bot + ' help';
-                            rtm.sendMessage(results[0].url, message.channel);
-                            break;
+                            rtm.sendMessage(response, message.channel);
+                        break;
                     }
                      
                    
