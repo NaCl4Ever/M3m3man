@@ -6,6 +6,7 @@ const env = require ('dotenv').config().parsed;
 const rtm = new RtmClient(env.Slack_key);
 const _ = require('lodash');
 const snoowrap =  require('snoowrap');
+var CronJob = require('cron').CronJob;
 const r = new snoowrap({
     userAgent: env.userAgent,
     clientId: env.clientId,
@@ -26,7 +27,7 @@ rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (rtmStartData) => {
     console.dir(bot);
 });
 
-//Do something on opening the client
+// Do something on opening the client
 rtm.on(CLIENT_EVENTS.RTM.RTM_CONNECTION_OPENED, function () {
     
 });
@@ -80,3 +81,20 @@ rtm.on(RTM_EVENTS.MESSAGE, function(message) {
         }
     }
 });
+
+var j = new CronJob('* * * * *',
+    function () {
+        console.log('You will see this message every second');
+        r.getSubreddit('dankmemes')
+            .getTop({ time: 'week' })
+            .then((results) => {
+                let selectedIndex = Math.floor(Math.random() * results.length)
+                for(channel in channels)
+                {
+                    rtm.sendMessage('Enjoy mah dudes!', channel);
+                    rtm.sendMessage(results[selectedIndex].url, channel);
+                }
+                
+            })
+            .catch(err => console.error(err));
+    }, null, true, 'America/Los_Angeles');
